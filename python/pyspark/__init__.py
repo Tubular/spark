@@ -36,29 +36,43 @@ Public classes:
       Finer-grained cache persistence levels.
 
 """
-import os, re
+import logging
+import os
+import re
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_spark_version():
     """
     Detect version of Spark located under SPARK_HOME.
     """
+    spark_home = os.environ.get('SPARK_HOME')
+    if not spark_home:
+        logger.warning("Environment variable SPARK_HOME is not set")
+        return
+
     libs_path = os.path.join(os.environ['SPARK_HOME'], 'lib')
     for jar_file in os.listdir(libs_path):
         if jar_file.startswith('spark-assembly'):
             try:
                 return re.match('spark-assembly-([^-]+)', jar_file).group(1)
             except IndexError:
-                raise ImportError("Can't detect Spark version by the assembly file")
+                logger.warning("Can't detect Spark version by the assembly file")
 
-    raise ImportError("Can't find file with Spark version")
+    logger.warning("Can't find file with Spark version")
 
 
+installed_version = get_spark_version()
 __version__ = '2.0.0'
-if __version__ != get_spark_version():
-    raise ImportError("Incompatible versions of PySpark ({}) and Spark ({})".format(
-        __version__, get_spark_version()
-    ))
+
+
+if installed_version is None:
+    logger.warning("Spark is not installed on this machine")
+elif installed_version != __version__:
+    logger.warning("Incompatible versions of PySpark (%s) and Spark (%s)",
+                   __version__, installed_version)
 
 
 from pyspark.conf import SparkConf
