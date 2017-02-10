@@ -17,7 +17,11 @@ setup(
     packages=[
         'pyspark',
         'pyspark.mllib',
+        'pyspark.mllib.linalg',
+        'pyspark.mllib.stat',
         'pyspark.ml',
+        'pyspark.ml.linalg',
+        'pyspark.ml.param',
         'pyspark.sql',
         'pyspark.streaming',
     ],
@@ -26,6 +30,7 @@ setup(
     ],
     extras_require={
         'ml': ['numpy>=1.7'],
+        'mllib': ['numpy>=1.7'],
         'sql': ['pandas'],
     },
     classifiers=[
